@@ -6,6 +6,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var BotID string
+
 func main() {
 	// New bot instance
 	dg, err := discordgo.New("Bot " + Token)
@@ -21,7 +23,10 @@ func main() {
 	}
 
 	// BotID from user info
-	BotID := u.ID
+	BotID = u.ID
+
+	// Chatlog listener
+	dg.AddHandler(messageHandler)
 
 	// Open connection with discord
 	err = dg.Open()
@@ -34,4 +39,18 @@ func main() {
 	fmt.Println("Bot " + BotID + "is running")
 	<-make(chan struct{})
 	return
+}
+
+// messageHandler listens to chat
+func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	// If the message author is the bot, do nothing
+	if m.Author.ID == BotID {
+		return
+	}
+
+	if m.Content == "ping" {
+		_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
+	}
+
 }
